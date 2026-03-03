@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-cream text-brown-800 font-sans;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  }
+
+  * {
+    @apply box-border;
+  }
+}
+
+@layer utilities {
+  .font-nunito {
+    font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  }
+
+  .bg-cream {
+    background-color: #FFF8F0;
+  }
+
+  .bg-peach-50 {
+    background-color: #FFF0E0;
+  }
+
+  .shadow-warm {
+    box-shadow: 0 2px 16px 0 rgba(180, 83, 9, 0.08), 0 1px 4px 0 rgba(180, 83, 9, 0.05);
+  }
+
+  .text-brown-800 { color: #92400E; }
+  .text-brown-700 { color: #A16207; }
+  .text-brown-600 { color: #B45309; }
+  .text-brown-500 { color: #D97706; }
+  .text-brown-400 { color: #F59E0B; }
+  .text-brown-300 { color: #FCD34D; }
+  .text-brown-200 { color: #FDE68A; }
+  .text-brown-100 { color: #FEF3C7; }
+
+  .bg-brown-900 { background-color: #451A03; }
+  .bg-brown-800 { background-color: #78350F; }
+
+  /* OSMD container styles */
+  #osmd-container svg {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
