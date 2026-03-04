@@ -124,7 +124,8 @@ def extract_notes(image_bytes: bytes) -> dict[str, Any]:
     def _call_api() -> str:
         message = client.messages.create(
             model="claude-opus-4-6",
-            max_tokens=4096,
+            max_tokens=8096,
+            temperature=0,
             messages=[
                 {
                     "role": "user",
@@ -158,7 +159,8 @@ def extract_notes(image_bytes: bytes) -> dict[str, Any]:
     # Retry with a more explicit prompt
     retry_message = client.messages.create(
         model="claude-opus-4-6",
-        max_tokens=4096,
+        max_tokens=8096,
+        temperature=0,
         messages=[
             {
                 "role": "user",

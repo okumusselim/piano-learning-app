@@ -70,12 +70,30 @@ export function SheetViewer({ musicxml, currentMeasure = 0, activeNoteIndex = -1
   }, [currentMeasure, isLoaded]);
 
   function extractAnnotations(osmd: OpenSheetMusicDisplay) {
+    // Maps OSMD NoteEnum (0-6) to letter names
+    const NOTE_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+
     const notes: NoteAnnotation[] = [];
     try {
       const measures = osmd.GraphicSheet?.MeasureList;
       if (!measures) return;
 
-      let noteIndex = 0;
+      // Use the rendered SVG viewBox for accurate unit-to-pixel conversion.
+      // Falls back to OSMD's internal page size, then to safe defaults.
+      const containerWidth = containerRef.current?.clientWidth ?? 800;
+      const containerHeight = containerRef.current?.clientHeight ?? 400;
+      const svg = containerRef.current?.querySelector('svg');
+      const vb = svg?.viewBox?.baseVal;
+      const sheet = osmd.GraphicSheet;
+      const pageWidth =
+        (vb?.width && vb.width > 0 ? vb.width : null) ??
+        (sheet as any).MusicPages?.[0]?.PositionAndShape?.Size?.width ??
+        200;
+      const pageHeight =
+        (vb?.height && vb.height > 0 ? vb.height : null) ??
+        (sheet as any).MusicPages?.[0]?.PositionAndShape?.Size?.height ??
+        280;
+
       measures.forEach((staffMeasures, measureIdx) => {
         staffMeasures?.forEach((measure) => {
           measure?.staffEntries?.forEach((entry) => {
@@ -85,28 +103,20 @@ export function SheetViewer({ musicxml, currentMeasure = 0, activeNoteIndex = -1
                 const pitch = sourceNote?.Pitch;
                 if (!pitch) return;
 
-                const noteName = `${pitch.FundamentalNote}${pitch.Octave}`;
-                const pos = (graphicalNote as any).PositionAndShape?.AbsolutePosition;
-                if (!pos) return;
+                // FundamentalNote is a numeric NoteEnum (0=C … 6=B); map to letter
+                const letter = NOTE_LETTERS[pitch.FundamentalNote as number] ?? String(pitch.FundamentalNote);
+                const noteName = `${letter}${pitch.Octave}`;
 
-                // Convert OSMD units to pixels
-                // OSMD uses a unit system where ~10 units ≈ 1 measure width
-                const containerWidth = containerRef.current?.clientWidth ?? 800;
-                const containerHeight = containerRef.current?.clientHeight ?? 400;
-                const sheet = osmd.GraphicSheet;
-                const pageWidth = (sheet as any).MusicPages?.[0]?.PositionAndShape?.Size?.width ?? 200;
-                const pageHeight = (sheet as any).MusicPages?.[0]?.PositionAndShape?.Size?.height ?? 280;
+                const pos = (graphicalNote as any).PositionAndShape?.AbsolutePosition;
+                if (!pos) {
+                  console.warn('No position for note', noteName, '— skipping label');
+                  return;
+                }
 
                 const x = (pos.x / pageWidth) * containerWidth;
                 const y = (pos.y / pageHeight) * containerHeight;
 
-                notes.push({
-                  noteName,
-                  x,
-                  y,
-                  measure: measureIdx,
-                });
-                noteIndex++;
+                notes.push({ noteName, x, y, measure: measureIdx });
               });
             });
           });
