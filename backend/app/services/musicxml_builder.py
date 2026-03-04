@@ -79,21 +79,25 @@ def build_musicxml(omr_data: dict[str, Any]) -> str:
             dur_quarters = DURATION_MAP.get(dur_name, 1.0)
             d = m21_duration.Duration(quarterLength=dur_quarters)
 
+            # Convert 1-indexed beat to music21's 0-indexed quarter-length offset
+            beat = float(note_data.get("beat", 1.0))
+            offset = beat - 1.0
+
             if note_data.get("is_rest") or not note_data.get("pitch"):
                 r = note.Rest()
                 r.duration = d
-                m.append(r)
+                m.insert(offset, r)
             else:
                 pitch_str = note_data["pitch"]
                 try:
                     n = note.Note(pitch_str)
                     n.duration = d
-                    m.append(n)
+                    m.insert(offset, n)
                 except Exception as e:
                     logger.warning(f"Skipping invalid note '{pitch_str}': {e}")
                     r = note.Rest()
                     r.duration = d
-                    m.append(r)
+                    m.insert(offset, r)
 
         if len(m) > 0:
             part.append(m)

@@ -113,8 +113,10 @@ export function SheetViewer({ musicxml, currentMeasure = 0, activeNoteIndex = -1
                   return;
                 }
 
-                const x = (pos.x / pageWidth) * containerWidth;
-                const y = (pos.y / pageHeight) * containerHeight;
+                // OSMD AbsolutePosition is in OSMD units where 1 unit = 10 SVG user units
+                const OSMD_UNIT = 10;
+                const x = (pos.x * OSMD_UNIT / pageWidth) * containerWidth;
+                const y = (pos.y * OSMD_UNIT / pageHeight) * containerHeight;
 
                 notes.push({ noteName, x, y, measure: measureIdx });
               });
